@@ -14,6 +14,8 @@ from implementation import instantiate_with_nonterminals, instantiate_with_subtr
 from oracles import has_warranty_xor_needs_check, manufacturer_in_model_with_check_must_be_zero, serial_in_model_and_check_not_in_model, status_length_equals_copies_printed, type_length_xor_copies_printed_equals_one, type_length_xor_status_length_equals_zero
 from tests import test_instantiate_with_nonterminals, test_instantiate_with_subtrees, test_check, test_learn, test_generate
 
+from timer import timer
+
 constraint_patterns = [
     "int(str({})) == 0",
     "int(str({})) == 1",
@@ -90,9 +92,12 @@ def validate_constraint(constraints: set[str], grammar: dict, oracle: callable) 
 
 
 def learn_and_refine(oracle_name, grammar, oracle):
+    timer.measure('Starting learn')
     constraints: set = run_learn(oracle_name)
+    timer.measure('Done with learn. Starting constraint validation')
     additional_positive_samples, additional_negative_samples = validate_constraint(
         constraints, grammar, oracle)
+    timer.measure('Done with constraint validation')
 
     limit = 10
     tries = 0
@@ -101,16 +106,21 @@ def learn_and_refine(oracle_name, grammar, oracle):
         if tries == limit:
             print("learn_and_refine failed.")
             return None
+        timer.measure('Starting learn in while loop')
         constraints: set = run_learn(
             oracle_name, additional_positive_samples, additional_negative_samples)
+        timer.measure('Done with learn. Starting constraint validation')
         additional_positive_samples, additional_negative_samples = validate_constraint(
             constraints, grammar, oracle)
+        timer.measure('Done with constraint validation')
 
+    timer.measure('Done with all')
     print("learn_and_refine successful.")
     return constraints
 
 
 def main():
+    timer.intialize_timer()
     random.seed()
 
     parser = argparse.ArgumentParser(description='Project 2')
@@ -205,7 +215,7 @@ def main():
     if args.learn_oracle_6:
         learn_and_refine("type_length_xor_status_length_equals_zero",
                          PRINTER_GRAMMAR, type_length_xor_status_length_equals_zero)
-
+    timer.output()
     # print total time taken  in seconds
     print("--- %s seconds ---" % (time.time() - start_time))
 

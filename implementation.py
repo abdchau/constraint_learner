@@ -3,9 +3,11 @@ Use this file to implement your solution. You can use the `main.py` file to test
 """
 from itertools import product
 from fuzzingbook.Grammars import nonterminals
-from fuzzingbook.Parser import GrammarFuzzer, EarleyParser
+from fuzzingbook.Parser import EarleyParser
+from fuzzingbook.GrammarFuzzer import EvenFasterGrammarFuzzer
 
 from helpers import tree_to_string, get_all_subtrees
+from timer import timer
 
 def instantiate_with_nonterminals(constraint_pattern: str, nonterminals: list[str]) -> set[str]:
     num_of_nts = constraint_pattern.count("{}")
@@ -39,7 +41,9 @@ def instantiate_with_subtrees(abstract_constraint: str, nts_to_subtrees: dict) -
 
 def learn(constraint_patterns: list[str], derivation_trees: list) -> set[str]:
     nts = set()
+    timer.measure('Going to get subtrees')
     subtrees = get_all_subtrees(derivation_trees[0])
+    timer.measure('Subtrees acquired. Gettings nts...')
     nts = set(subtrees.keys())
     
     for derivation_tree in derivation_trees[1:]:
@@ -47,12 +51,17 @@ def learn(constraint_patterns: list[str], derivation_trees: list) -> set[str]:
         nts.intersection_update(set(subtrees.keys()))
     
     nts = list(nts)
+    timer.measure('NTs acquired.')
+
 
     # abstract constraints which hold for all derivation_trees
     result = set()
 
+    timer.measure('Beginning work on constraint patterns')
     for constraint_pattern in constraint_patterns:
+        timer.measure(f'Getting abstract constraints for {constraint_pattern}')
         abstract_constraints = instantiate_with_nonterminals(constraint_pattern, nts)
+        timer.measure(f'{len(abstract_constraints)} abstract constraints acquired')
         
         for abstract_constraint in abstract_constraints:
             passed = False
@@ -71,6 +80,8 @@ def learn(constraint_patterns: list[str], derivation_trees: list) -> set[str]:
                     
             if passed:
                 result.add(abstract_constraint)
+        
+        timer.measure(f'Done with abstract constraints for {constraint_pattern}')
                 
     return result
 
@@ -99,7 +110,7 @@ def check(abstract_constraints: set[str], derivation_tree) -> bool:
 #---------------------------------------------------------------------------------------------------
 
 def generate(abstract_constraints: set[str], grammar: dict, produce_valid_sample: True) -> str:
-    fuzzer = GrammarFuzzer(grammar)
+    fuzzer = EvenFasterGrammarFuzzer(grammar)
     parser = EarleyParser(grammar)
     
     while True:
