@@ -4,7 +4,7 @@ Use this file to implement your solution. You can use the `main.py` file to test
 from itertools import product
 from fuzzingbook.Grammars import nonterminals
 
-from helpers import tree_to_string
+from helpers import tree_to_string, get_all_subtrees
 
 def instantiate_with_nonterminals(constraint_pattern: str, nonterminals: list[str]) -> set[str]:
     num_of_nts = constraint_pattern.count("{}")
@@ -42,7 +42,15 @@ def learn(constraint_patterns: list[str], derivation_trees: list) -> set[str]:
 #---------------------------------------------------------------------------------------------------
 
 def check(abstract_constraints: set[str], derivation_tree) -> bool:
-    pass
+    nts_to_subtrees = get_all_subtrees(derivation_tree)
+    
+    for abstract_constraint in abstract_constraints:
+        concrete_constraints = instantiate_with_subtrees(abstract_constraint, nts_to_subtrees)
+        for concrete_constraint in concrete_constraints:
+            if eval(concrete_constraint) == False:
+                return False
+
+    return True
 
 #---------------------------------------------------------------------------------------------------
 
