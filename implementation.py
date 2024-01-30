@@ -1,9 +1,13 @@
 """
 Use this file to implement your solution. You can use the `main.py` file to test your implementation.
 """
+from itertools import product
 
 def instantiate_with_nonterminals(constraint_pattern: str, nonterminals: list[str]) -> set[str]:
-    pass
+    num_of_nts = constraint_pattern.count("{}")
+    cartesian = product(nonterminals, repeat=num_of_nts)
+    
+    return {constraint_pattern.format(*nts) for nts in cartesian}
 
 def instantiate_with_subtrees(abstract_constraint: str, nts_to_subtrees: dict) -> set[str]:
     pass
