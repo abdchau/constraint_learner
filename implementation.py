@@ -3,6 +3,7 @@ Use this file to implement your solution. You can use the `main.py` file to test
 """
 from itertools import product
 from fuzzingbook.Grammars import nonterminals
+from fuzzingbook.Parser import GrammarFuzzer, EarleyParser
 
 from helpers import tree_to_string, get_all_subtrees
 
@@ -88,4 +89,10 @@ def check(abstract_constraints: set[str], derivation_tree) -> bool:
 #---------------------------------------------------------------------------------------------------
 
 def generate(abstract_constraints: set[str], grammar: dict, produce_valid_sample: True) -> str:
-    pass
+    fuzzer = GrammarFuzzer(grammar)
+    parser = EarleyParser(grammar)
+    
+    while True:
+        fuzzed_input = fuzzer.fuzz()
+        if check(abstract_constraints, next(parser.parse(fuzzed_input))) == produce_valid_sample:
+            return fuzzed_input
