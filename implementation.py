@@ -58,7 +58,12 @@ def learn(constraint_patterns: list[str], derivation_trees: list) -> set[str]:
             passed = False
         
             for derivation_tree in derivation_trees:
-                if not check({abstract_constraint}, derivation_tree):
+                chk = False
+                try:
+                    chk = check({abstract_constraint}, derivation_tree)
+                except:
+                    pass
+                if not chk:
                     passed = False
                     break
                 else:
@@ -81,7 +86,12 @@ def check(abstract_constraints: set[str], derivation_tree) -> bool:
 
         concrete_constraints = instantiate_with_subtrees(abstract_constraint, nts_to_subtrees)
         for concrete_constraint in concrete_constraints:
-            if eval(concrete_constraint) == True:
+            try:
+                result = eval(concrete_constraint)
+            except Exception as e:
+                # print('Fail eval')
+                raise e
+            if result == True:
                 passing_constraints.add(abstract_constraint)
 
     return len(passing_constraints) == len(abstract_constraints)
@@ -94,5 +104,13 @@ def generate(abstract_constraints: set[str], grammar: dict, produce_valid_sample
     
     while True:
         fuzzed_input = fuzzer.fuzz()
-        if check(abstract_constraints, next(parser.parse(fuzzed_input))) == produce_valid_sample:
+        # valid_input = not produce_valid_sample
+        valid_input = False
+
+        try:
+            valid_input = check(abstract_constraints, next(parser.parse(fuzzed_input)))
+        except SyntaxError as e:
+            pass
+
+        if valid_input == produce_valid_sample:
             return fuzzed_input
