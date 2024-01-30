@@ -63,9 +63,11 @@ def learn(constraint_patterns: list[str], derivation_trees: list) -> set[str]:
         abstract_constraints = instantiate_with_nonterminals(constraint_pattern, nts)
         timer.measure(f'{len(abstract_constraints)} abstract constraints acquired')
         
+        timer.measure(f'Beginning evaluation of abstract constraints')
         for abstract_constraint in abstract_constraints:
             passed = False
         
+            timer.measure(f'Evaluating one derivation tree')
             for derivation_tree in derivation_trees:
                 chk = False
                 try:
@@ -80,8 +82,9 @@ def learn(constraint_patterns: list[str], derivation_trees: list) -> set[str]:
                     
             if passed:
                 result.add(abstract_constraint)
+            timer.measure(f'One derivation tree evaluated.')
         
-        timer.measure(f'Done with abstract constraints for {constraint_pattern}')
+        timer.measure(f'Done with abstract constraints for {constraint_pattern}\n')
                 
     return result
 
