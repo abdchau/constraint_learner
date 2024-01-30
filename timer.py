@@ -14,8 +14,10 @@ class Timer:
         now = time.time() 
         time_since_last = now - self.last_time
         self.last_time = now
+        if time_since_last < 0.0001:
+            return
 
-        self.out_string += '{:.2f}: {} \n'.format(time_since_last, st)
+        self.out_string += '{:.2f}: {} \n'.format(time_since_last*1000, st)
         
     def output(self):
         print(self.out_string)

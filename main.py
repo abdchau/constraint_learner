@@ -215,7 +215,7 @@ def main():
     if args.learn_oracle_6:
         learn_and_refine("type_length_xor_status_length_equals_zero",
                          PRINTER_GRAMMAR, type_length_xor_status_length_equals_zero)
-    timer.output()
+    # timer.output()
     # print total time taken  in seconds
     print("--- %s seconds ---" % (time.time() - start_time))
 
