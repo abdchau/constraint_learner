@@ -37,7 +37,36 @@ def instantiate_with_subtrees(abstract_constraint: str, nts_to_subtrees: dict) -
 #---------------------------------------------------------------------------------------------------
 
 def learn(constraint_patterns: list[str], derivation_trees: list) -> set[str]:
-    pass
+    nts = set()
+    subtrees = get_all_subtrees(derivation_trees[0])
+    nts = set(subtrees.keys())
+    
+    for derivation_tree in derivation_trees[1:]:
+        subtrees = get_all_subtrees(derivation_tree)
+        nts.intersection_update(set(subtrees.keys()))
+    
+    nts = list(nts)
+
+    # abstract constraints which hold for all derivation_trees
+    result = set()
+
+    for constraint_pattern in constraint_patterns:
+        abstract_constraints = instantiate_with_nonterminals(constraint_pattern, nts)
+        
+        for abstract_constraint in abstract_constraints:
+            passed = False
+        
+            for derivation_tree in derivation_trees:
+                if not check({abstract_constraint}, derivation_tree):
+                    passed = False
+                    break
+                else:
+                    passed = True
+                    
+            if passed:
+                result.add(abstract_constraint)
+                
+    return result
 
 #---------------------------------------------------------------------------------------------------
 
