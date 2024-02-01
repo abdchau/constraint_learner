@@ -73,26 +73,18 @@ def learn(constraint_patterns: list[str], derivation_trees: list) -> set[str]:
                     
             if passed:
                 result.add(abstract_constraint)
-        
-                
+
     return result
 
 #---------------------------------------------------------------------------------------------------
 
-abs_cons_der_tree = {}
 
 def check(abstract_constraints: set[str], derivation_tree) -> bool:
     nts_to_subtrees = get_all_subtrees(derivation_tree)
     
     passing_constraints = set()
-    derived_string = tree_to_string(derivation_tree)
     for abstract_constraint in abstract_constraints:
         if abstract_constraint in passing_constraints:
-            continue
-
-        key = f'{abstract_constraint}{derived_string}'
-        if abs_cons_der_tree.get(key) == True:
-            passing_constraints.add(abstract_constraint)
             continue
 
         concrete_constraints = instantiate_with_subtrees(abstract_constraint, nts_to_subtrees)
@@ -100,14 +92,11 @@ def check(abstract_constraints: set[str], derivation_tree) -> bool:
             try:
                 result = eval(concrete_constraint)
             except Exception as e:
-                abs_cons_der_tree[key] = False
                 raise e
             
-            abs_cons_der_tree[key] = result
             if result == True:
                 passing_constraints.add(abstract_constraint)
                 break
-            
 
     return len(passing_constraints) == len(abstract_constraints)
 
