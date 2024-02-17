@@ -37,6 +37,7 @@ def instantiate_with_subtrees(abstract_constraint: str, nts_to_subtrees: dict) -
     return result
 
 #---------------------------------------------------------------------------------------------------
+conc_cons = {}
 
 def learn(constraint_patterns: list[str], derivation_trees: list) -> set[str]:
     nts = set()
@@ -61,10 +62,8 @@ def learn(constraint_patterns: list[str], derivation_trees: list) -> set[str]:
         
             for derivation_tree in derivation_trees:
                 chk = False
-                try:
-                    chk = check({abstract_constraint}, derivation_tree)
-                except:
-                    pass
+                chk = check({abstract_constraint}, derivation_tree)
+
                 if not chk:
                     passed = False
                     break
@@ -73,31 +72,63 @@ def learn(constraint_patterns: list[str], derivation_trees: list) -> set[str]:
                     
             if passed:
                 result.add(abstract_constraint)
+    
+    # for key, value in conc_cons.items():
+    #     if value > 1:
+    #         print(key, value)
 
     return result
 
 #---------------------------------------------------------------------------------------------------
+
+def eval_or_cache(concrete_constraint):
+    result = False
+    cached_result = conc_cons.get(concrete_constraint, None)
+
+    if cached_result == None:
+        try:
+            result = eval(concrete_constraint)
+        except Exception as e:
+            conc_cons[concrete_constraint] = 'exception'
+            raise e
+    elif cached_result != 'exception':
+        result = conc_cons[concrete_constraint]
+    else:
+        raise Exception()
+    
+    conc_cons[concrete_constraint] = result
+    return result
 
 
 def check(abstract_constraints: set[str], derivation_tree) -> bool:
     nts_to_subtrees = get_all_subtrees(derivation_tree)
     
     passing_constraints = set()
+    count = 0
     for abstract_constraint in abstract_constraints:
-        if abstract_constraint in passing_constraints:
-            continue
+        # if abstract_constraint in passing_constraints:
+        #     continue
+        result = False
 
         concrete_constraints = instantiate_with_subtrees(abstract_constraint, nts_to_subtrees)
         for concrete_constraint in concrete_constraints:
-            try:
-                result = eval(concrete_constraint)
-            except Exception as e:
-                raise e
+            if conc_cons.get(concrete_constraint, None) == None:
+                try:
+                    result = eval_or_cache(concrete_constraint)
+                except Exception as e:
+                    result = False
+                    break
+            else:
+                result = conc_cons[concrete_constraint]
             
             if result == True:
                 passing_constraints.add(abstract_constraint)
                 break
-
+        
+        count += 1
+        if not result:
+            break
+        
     return len(passing_constraints) == len(abstract_constraints)
 
 #---------------------------------------------------------------------------------------------------
