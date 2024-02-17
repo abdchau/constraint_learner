@@ -67,8 +67,7 @@ PRINTER_GRAMMAR = {
         '"4800x2400 DPI"'
     ],
     '<copies_printed>': ['"copiesPrinted": <digitsCopiesPrinted>'],
-    '<digitsCopiesPrinted>': ['<digitCopiesPrinted><digitsCopiesPrinted>', '<digitCopiesPrinted>'],
-    '<digitCopiesPrinted>': ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
+    "<digitsCopiesPrinted>": ['<digits>'],
     '<os_values>': [
         '<os_single>',
         '<os_single>, <os_values>'],
