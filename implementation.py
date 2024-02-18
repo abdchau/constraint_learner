@@ -51,7 +51,6 @@ def learn(constraint_patterns: list[str], derivation_trees: list) -> set[str]:
     
     nts = list(nts)
 
-
     # abstract constraints which hold for all derivation_trees
     result = set()
 
@@ -73,10 +72,6 @@ def learn(constraint_patterns: list[str], derivation_trees: list) -> set[str]:
                     
             if passed:
                 result.add(abstract_constraint)
-    
-    # for key, value in conc_cons.items():
-    #     if value > 1:
-    #         print(key, value)
 
     return result
 
@@ -105,10 +100,7 @@ def check(abstract_constraints: set[str], derivation_tree) -> bool:
     nts_to_subtrees = get_all_subtrees(derivation_tree)
     
     passing_constraints = set()
-    count = 0
     for abstract_constraint in abstract_constraints:
-        # if abstract_constraint in passing_constraints:
-        #     continue
         result = False
 
         concrete_constraints = instantiate_with_subtrees(abstract_constraint, nts_to_subtrees)
@@ -126,7 +118,6 @@ def check(abstract_constraints: set[str], derivation_tree) -> bool:
                 passing_constraints.add(abstract_constraint)
                 break
         
-        count += 1
         if not result:
             break
         
@@ -140,7 +131,6 @@ def generate(abstract_constraints: set[str], grammar: dict, produce_valid_sample
     
     while True:
         fuzzed_input = fuzzer.fuzz()
-        # valid_input = not produce_valid_sample
         valid_input = False
 
         try:
