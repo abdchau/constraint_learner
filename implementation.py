@@ -19,6 +19,7 @@ def instantiate_with_nonterminals(constraint_pattern: str, nonterminals: list[st
 def instantiate_with_subtrees(abstract_constraint: str, nts_to_subtrees: dict) -> set[str]:
     nts = nonterminals(abstract_constraint)
 
+    nts_to_subtrees = {k:v for k, v in nts_to_subtrees.items() if k in nts}
     nts_to_string = {nt: [tree_to_string(subtree) for subtree in subtrees] 
                             for nt, subtrees in nts_to_subtrees.items()}
 
